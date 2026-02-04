@@ -9,7 +9,7 @@ public class DoublyLinkedList<E> implements List<E> {
     private static class Node<E> {
         private final E data;
         private Node<E> next;
-        private final Node<E> prev;
+        private Node<E> prev;
 
         public Node(E e, Node<E> p, Node<E> n) {
             data = e;
@@ -33,7 +33,7 @@ public class DoublyLinkedList<E> implements List<E> {
 
     private final Node<E> head;
     private final Node<E> tail;
-    private final int size = 0;
+    private int size = 0;
 
     public DoublyLinkedList() {
         head = new Node<E>(null, null, null);
@@ -42,40 +42,64 @@ public class DoublyLinkedList<E> implements List<E> {
     }
 
     private void addBetween(E e, Node<E> pred, Node<E> succ) {
-        // TODO
+        Node<E> newNode = new Node<>(e, pred, succ);
+        pred.next = newNode;
+        succ.prev = newNode;
+        size++;
     }
 
     @Override
     public int size() {
-        // TODO
-        return 0;
+        return size;
     }
 
     @Override
     public boolean isEmpty() {
-        // TODO
-        return false;
+        return size == 0;
     }
 
     @Override
     public E get(int i) {
-        // TODO
-        return null;
+        if (i < 0 || i >= size) {
+            throw new IndexOutOfBoundsException("Index: " + i + ", Size: " + size);
+        }
+        Node<E> curr = head.next;
+        for (int k = 0; k < i; k++) {
+            curr = curr.next;
+        }
+        return curr.getData();
     }
 
     @Override
     public void add(int i, E e) {
-        // TODO
+        if (i < 0 || i > size) {
+            throw new IndexOutOfBoundsException("Index: " + i + ", Size: " + size);
+        }
+        if (i == size) {
+            addLast(e);
+        } else {
+            Node<E> curr = head.next;
+            for (int k = 0; k < i; k++) {
+                curr = curr.next;
+            }
+            addBetween(e, curr.getPrev(), curr);
+        }
     }
 
     @Override
     public E remove(int i) {
-        // TODO
-        return null;
+        if (i < 0 || i >= size) {
+            throw new IndexOutOfBoundsException("Index: " + i + ", Size: " + size);
+        }
+        Node<E> curr = head.next;
+        for (int k = 0; k < i; k++) {
+            curr = curr.next;
+        }
+        return remove(curr);
     }
 
-    private class DoublyLinkedListIterator<E> implements Iterator<E> {
-        Node<E> curr = (Node<E>) head.next;
+    private class DoublyLinkedListIterator implements Iterator<E> {
+        Node<E> curr = head.next;
 
         @Override
         public boolean hasNext() {
@@ -92,11 +116,17 @@ public class DoublyLinkedList<E> implements List<E> {
 
     @Override
     public Iterator<E> iterator() {
-        return new DoublyLinkedListIterator<E>();
+        return new DoublyLinkedListIterator();
     }
 
     private E remove(Node<E> n) {
-        // TODO
+        if (n != null) {
+            E data = n.getData();
+            n.getPrev().next = n.getNext();
+            n.getNext().prev = n.getPrev();
+            size--;
+            return data;
+        }
         return null;
     }
 
@@ -108,30 +138,36 @@ public class DoublyLinkedList<E> implements List<E> {
     }
 
     public E last() {
-        // TODO
-        return null;
+        if (isEmpty()) {
+            return null;
+        }
+        return tail.getPrev().getData();
     }
 
     @Override
     public E removeFirst() {
-        // TODO
-        return null;
+        if (isEmpty()) {
+            return null;
+        }
+        return remove(head.next);
     }
 
     @Override
     public E removeLast() {
-        // TODO
-        return null;
+        if (isEmpty()) {
+            return null;
+        }
+        return remove(tail.getPrev());
     }
 
     @Override
     public void addLast(E e) {
-        // TODO
+        addBetween(e, tail.getPrev(), tail);
     }
 
     @Override
     public void addFirst(E e) {
-        // TODO
+        addBetween(e, head, head.next);
     }
 
     public String toString() {
@@ -150,20 +186,16 @@ public class DoublyLinkedList<E> implements List<E> {
 
     public static void main(String[] args) {
         DoublyLinkedList<Integer> ll = new DoublyLinkedList<Integer>();
+        System.out.println("ll " + ll + " isEmpty: " + ll.isEmpty());
+
         ll.addFirst(0);
         ll.addFirst(1);
         ll.addFirst(2);
+        ll.addFirst(3);
+        ll.addFirst(4);
         ll.addLast(-1);
         System.out.println(ll);
-
-        ll.removeFirst();
+        ll.remove(5);
         System.out.println(ll);
-
-        ll.removeLast();
-        System.out.println(ll);
-
-        for (Integer e : ll) {
-            System.out.println("value: " + e);
-        }
     }
 }

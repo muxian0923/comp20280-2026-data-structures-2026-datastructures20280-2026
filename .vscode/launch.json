@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Run CircularlyLinkedList.main",
+      "request": "launch",
+      "mainClass": "project20280.list.CircularlyLinkedList"
+    },
+    {
+      "type": "java",
+      "name": "Run SinglyLinkedList.main",
+      "request": "launch",
+      "mainClass": "project20280.list.SinglyLinkedList"
+    },
+    {
+      "type": "java",
+      "name": "Run DoublyLinkedList.main",
+      "request": "launch",
+      "mainClass": "project20280.list.DoublyLinkedList"
+    }
+  ]
+}

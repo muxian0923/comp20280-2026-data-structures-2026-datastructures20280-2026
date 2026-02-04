@@ -3,6 +3,7 @@ package project20280.list;
 import project20280.interfaces.List;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class CircularlyLinkedList<E> implements List<E> {
 
@@ -28,8 +29,8 @@ public class CircularlyLinkedList<E> implements List<E> {
         }
     }
 
-    private final Node<E> tail = null;
-    private final int size = 0;
+    private Node<E> tail = null;
+    private int size = 0;
 
     public CircularlyLinkedList() {
 
@@ -42,8 +43,14 @@ public class CircularlyLinkedList<E> implements List<E> {
 
     @Override
     public E get(int i) {
-        // TODO
-        return null;
+        if (i < 0 || i >= size) {
+            throw new IndexOutOfBoundsException("Index: " + i + ", Size: " + size);
+        }
+        Node<E> curr = tail.getNext();
+        for (int k = 0; k < i; k++) {
+            curr = curr.getNext();
+        }
+        return curr.getData();
     }
 
     /**
@@ -55,31 +62,69 @@ public class CircularlyLinkedList<E> implements List<E> {
      */
     @Override
     public void add(int i, E e) {
-        // TODO
+        if (i < 0 || i > size) {
+            throw new IndexOutOfBoundsException("Index: " + i + ", Size: " + size);
+        }
+        if (i == 0) {
+            addFirst(e);
+        } else if (i == size) {
+            addLast(e);
+        } else {
+            Node<E> curr = tail.getNext();
+            for (int k = 0; k < i; k++) {
+                curr = curr.getNext();
+            }
+            Node<E> newNode = new Node<>(e, curr.getNext());
+            curr.setNext(newNode);
+            size++;
+        }
     }
 
     @Override
     public E remove(int i) {
-        // TODO
-        return null;
+        if (i < 0 || i >= size) {
+            throw new IndexOutOfBoundsException("Index: " + i + ", Size: " + size);
+        }
+        if (i == 0) {
+            return removeFirst();
+        }
+        if (i == size - 1) {
+            return removeLast();
+        }
+        Node<E> pred = tail.getNext();
+        for (int k = 0; k < i - 1; k++) {
+            pred = pred.getNext();
+        }
+        E data = pred.getNext().getData();
+        pred.setNext(pred.getNext().getNext());
+        size--;
+        return data;
     }
 
     public void rotate() {
-        // TODO
+        if (isEmpty()) {
+            return;
+        }
+        tail = tail.getNext();
     }
 
-    private class CircularlyLinkedListIterator<E> implements Iterator<E> {
-        Node<E> curr = (Node<E>) tail;
+    private class CircularlyLinkedListIterator implements Iterator<E> {
+        Node<E> curr = tail != null ? tail.getNext() : null;
+        int count = 0;
 
         @Override
         public boolean hasNext() {
-            return curr != tail;
+            return curr != null && count < size;
         }
 
         @Override
         public E next() {
-            E res = curr.data;
-            curr = curr.next;
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            E res = curr.getData();
+            curr = curr.getNext();
+            count++;
             return res;
         }
 
@@ -87,7 +132,7 @@ public class CircularlyLinkedList<E> implements List<E> {
 
     @Override
     public Iterator<E> iterator() {
-        return new CircularlyLinkedListIterator<E>();
+        return new CircularlyLinkedListIterator();
     }
 
     @Override
@@ -97,49 +142,97 @@ public class CircularlyLinkedList<E> implements List<E> {
 
     @Override
     public E removeFirst() {
-        // TODO
-        return null;
+        if (isEmpty()) {
+            return null;
+        }
+        if (size == 1) {
+            E data = tail.getData();
+            tail = null;
+            size = 0;
+            return data;
+        }
+        E data = tail.getNext().getData();
+        tail.setNext(tail.getNext().getNext());
+        size--;
+        return data;
     }
 
     @Override
     public E removeLast() {
-        // TODO
-        return null;
+        if (isEmpty()) {
+            return null;
+        }
+        if (size == 1) {
+            return removeFirst();
+        }
+        Node<E> pred = tail.getNext();
+        while (pred.getNext() != tail) {
+            pred = pred.getNext();
+        }
+        E data = tail.getData();
+        pred.setNext(tail.getNext());
+        tail = pred;
+        size--;
+        return data;
     }
 
     @Override
     public void addFirst(E e) {
-        // TODO
+        if (isEmpty()) {
+            Node<E> newNode = new Node<>(e, null);
+            newNode.setNext(newNode);
+            tail = newNode;
+            size = 1;
+        } else {
+            Node<E> newNode = new Node<>(e, tail.getNext());
+            tail.setNext(newNode);
+            size++;
+        }
     }
 
     @Override
     public void addLast(E e) {
-        // TODO
+        if (isEmpty()) {
+            Node<E> newNode = new Node<>(e, null);
+            newNode.setNext(newNode);
+            tail = newNode;
+            size = 1;
+        } else {
+            Node<E> newNode = new Node<>(e, tail.getNext());
+            tail.setNext(newNode);
+            tail = newNode;
+            size++;
+        }
     }
 
 
     public String toString() {
+        if (tail == null) {
+            return "[]";
+        }
         StringBuilder sb = new StringBuilder("[");
-        Node<E> curr = tail;
-        do {
-            curr = curr.next;
-            sb.append(curr.data);
-            if (curr != tail) {
+        Node<E> curr = tail.getNext();
+        for (int i = 0; i < size; i++) {
+            if (i > 0) {
                 sb.append(", ");
             }
-        } while (curr != tail);
+            sb.append(curr.getData());
+            curr = curr.getNext();
+        }
         sb.append("]");
         return sb.toString();
     }
 
 
     public static void main(String[] args) {
-        CircularlyLinkedList<Integer> ll = new CircularlyLinkedList<Integer>();
-        for (int i = 10; i < 20; ++i) {
-            ll.addLast(i);
-        }
+        try {
+            System.out.println("start");
+            CircularlyLinkedList<Integer> ll = new CircularlyLinkedList<Integer>();
+            for (int i = 10; i < 20; ++i) {
+                ll.addLast(i);
+            }
 
-        System.out.println(ll);
+            System.out.println(ll);
 
         ll.removeFirst();
         System.out.println(ll);
@@ -158,9 +251,13 @@ public class CircularlyLinkedList<E> implements List<E> {
         ll.rotate();
         System.out.println(ll);
 
-        for (Integer e : ll) {
-            System.out.println("value: " + e);
+            for (Integer e : ll) {
+                System.out.println("value: " + e);
+            }
+            System.out.println("done");
+        } catch (Throwable t) {
+            System.err.println("Error: " + t.getClass().getName() + " - " + t.getMessage());
+            t.printStackTrace();
         }
-
     }
 }
