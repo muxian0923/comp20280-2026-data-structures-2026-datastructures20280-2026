@@ -3,6 +3,34 @@
   "configurations": [
     {
       "type": "java",
+      "name": "LinkedQueue",
+      "request": "launch",
+      "mainClass": "project20280.stacksqueues.LinkedQueue",
+      "projectName": "data-structures"
+    },
+    {
+      "type": "java",
+      "name": "LinkedStack",
+      "request": "launch",
+      "mainClass": "project20280.stacksqueues.LinkedStack",
+      "projectName": "data-structures"
+    },
+    {
+      "type": "java",
+      "name": "ArrayStack",
+      "request": "launch",
+      "mainClass": "project20280.stacksqueues.ArrayStack",
+      "projectName": "data-structures"
+    },
+    {
+      "type": "java",
+      "name": "Wk1",
+      "request": "launch",
+      "mainClass": "project20280.exercises.Wk1",
+      "projectName": "data-structures"
+    },
+    {
+      "type": "java",
       "name": "Run CircularlyLinkedList.main",
       "request": "launch",
       "mainClass": "project20280.list.CircularlyLinkedList"

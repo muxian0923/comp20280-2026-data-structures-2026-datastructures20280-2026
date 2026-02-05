@@ -70,12 +70,12 @@ public class CircularlyLinkedList<E> implements List<E> {
         } else if (i == size) {
             addLast(e);
         } else {
-            Node<E> curr = tail.getNext();
-            for (int k = 0; k < i; k++) {
-                curr = curr.getNext();
+            Node<E> pred = tail.getNext();
+            for (int k = 0; k < i - 1; k++) {
+                pred = pred.getNext();
             }
-            Node<E> newNode = new Node<>(e, curr.getNext());
-            curr.setNext(newNode);
+            Node<E> newNode = new Node<>(e, pred.getNext());
+            pred.setNext(newNode);
             size++;
         }
     }

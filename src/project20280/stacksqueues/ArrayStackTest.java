@@ -1,69 +1,57 @@
 package project20280.stacksqueues;
 
-
 import org.junit.jupiter.api.Test;
-import project20280.interfaces.Stack;
+import project20280.interfaces.Queue;
 
-import java.util.Optional;
+
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+class ArrayQueueTest {
 
-public class ArrayStackTest {
     @Test
     void testSize() {
-        Stack<Integer> s = new ArrayStack<>();
-
-        assertEquals(0, s.size());
-
-        int N = 16;
-        for (int i = 0; i < N; ++i) s.push(i);
-        assertEquals(N, s.size());
+        Queue<Integer> s = new ArrayQueue<>();
+        for (int i = 0; i < 10; ++i)
+            s.enqueue(i);
+        assertEquals(10, s.size());
     }
 
     @Test
     void testIsEmpty() {
-        Stack<Integer> s = new ArrayStack<>();
+        Queue<Integer> s = new ArrayQueue<>();
         for (int i = 0; i < 10; ++i)
-            s.push(i);
-        for (int i = 0; i < 10; ++i) {
-            s.pop();
-        }
+            s.enqueue(i);
+        for (int i = 0; i < 10; ++i)
+            s.dequeue();
         assertTrue(s.isEmpty());
     }
 
     @Test
-    void testPush() {
-        Stack<Integer> s = new ArrayStack<>();
+    void testEnqueue() {
+        Queue<Integer> s = new ArrayQueue<>();
         for (int i = 0; i < 10; ++i)
-            s.push(i);
-        assertEquals(10, s.size());
-        assertEquals("[9, 8, 7, 6, 5, 4, 3, 2, 1, 0]", s.toString());
+            s.enqueue(i);
+        assertEquals("[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]", s.toString());
     }
 
     @Test
-    void testTop() {
-        Stack<Integer> s = new ArrayStack<>();
+    void testFirst() {
+        Queue<Integer> s = new ArrayQueue<>();
         for (int i = 0; i < 10; ++i)
-            s.push(i);
-        assertEquals(9, Optional.ofNullable(s.top()));
+            s.enqueue(i);
+        assertEquals(0,(s.first()));
     }
 
     @Test
-    void testPop() {
-        Stack<Integer> s = new ArrayStack<>();
+    void testDequeue() {
+        Queue<Integer> s = new ArrayQueue<>();
         for (int i = 0; i < 10; ++i)
-            s.push(i);
-        assertEquals(9, Optional.ofNullable(s.pop()));
+            s.enqueue(i);
+
+        assertEquals(0,(s.dequeue()));
         assertEquals(9, s.size());
     }
 
-    @Test
-    void testToString() {
-        Stack<Integer> s = new ArrayStack<>();
-        for (int i = 0; i < 10; ++i)
-            s.push(i);
-        assertEquals("[9, 8, 7, 6, 5, 4, 3, 2, 1, 0]", s.toString());
-    }
 }
