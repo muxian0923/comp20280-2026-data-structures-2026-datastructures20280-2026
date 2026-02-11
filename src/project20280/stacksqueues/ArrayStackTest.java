@@ -1,57 +1,63 @@
 package project20280.stacksqueues;
 
 import org.junit.jupiter.api.Test;
-import project20280.interfaces.Queue;
-
-
+import project20280.interfaces.Stack;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ArrayQueueTest {
+class ArrayStackTest {
 
     @Test
     void testSize() {
-        Queue<Integer> s = new ArrayQueue<>();
+        Stack<Integer> s = new ArrayStack<>();
+        assertEquals(0, s.size());
         for (int i = 0; i < 10; ++i)
-            s.enqueue(i);
+            s.push(i);
         assertEquals(10, s.size());
     }
 
     @Test
     void testIsEmpty() {
-        Queue<Integer> s = new ArrayQueue<>();
+        Stack<Integer> s = new ArrayStack<>();
         for (int i = 0; i < 10; ++i)
-            s.enqueue(i);
+            s.push(i);
         for (int i = 0; i < 10; ++i)
-            s.dequeue();
+            s.pop();
         assertTrue(s.isEmpty());
     }
 
     @Test
-    void testEnqueue() {
-        Queue<Integer> s = new ArrayQueue<>();
+    void testPush() {
+        Stack<Integer> s = new ArrayStack<>();
         for (int i = 0; i < 10; ++i)
-            s.enqueue(i);
-        assertEquals("[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]", s.toString());
+            s.push(i);
+        assertEquals(10, s.size());
+        assertEquals("[9, 8, 7, 6, 5, 4, 3, 2, 1, 0]", s.toString());
     }
 
     @Test
-    void testFirst() {
-        Queue<Integer> s = new ArrayQueue<>();
+    void testTop() {
+        Stack<Integer> s = new ArrayStack<>();
         for (int i = 0; i < 10; ++i)
-            s.enqueue(i);
-        assertEquals(0,(s.first()));
+            s.push(i);
+        assertEquals(9, s.top());
     }
 
     @Test
-    void testDequeue() {
-        Queue<Integer> s = new ArrayQueue<>();
+    void testPop() {
+        Stack<Integer> s = new ArrayStack<>();
         for (int i = 0; i < 10; ++i)
-            s.enqueue(i);
-
-        assertEquals(0,(s.dequeue()));
+            s.push(i);
+        assertEquals(9, s.pop());
         assertEquals(9, s.size());
     }
 
+    @Test
+    void testToString() {
+        Stack<Integer> s = new ArrayStack<>();
+        for (int i = 0; i < 10; ++i)
+            s.push(i);
+        assertEquals("[9, 8, 7, 6, 5, 4, 3, 2, 1, 0]", s.toString());
+    }
 }

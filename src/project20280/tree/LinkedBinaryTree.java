@@ -3,7 +3,6 @@ package project20280.tree;
 import project20280.interfaces.Position;
 
 import java.util.ArrayList;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 /**
  * Concrete implementation of a binary tree using a node-based, linked
@@ -153,8 +152,10 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
      * @throws IllegalStateException if the tree is not empty
      */
     public Position<E> addRoot(E e) throws IllegalStateException {
-        // TODO
-        return null;
+        if (root != null) throw new IllegalStateException("Tree is not empty");
+        root = createNode(e, null, null, null);
+        size = 1;
+        return root;
     }
 
     public void insert(E e) {
@@ -179,8 +180,12 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
      * @throws IllegalArgumentException if p already has a left child
      */
     public Position<E> addLeft(Position<E> p, E e) throws IllegalArgumentException {
-        // TODO
-        return null;
+        Node<E> n = validate(p);
+        if (n.getLeft() != null) throw new IllegalArgumentException("p already has a left child");
+        Node<E> child = createNode(e, n, null, null);
+        n.setLeft(child);
+        size++;
+        return child;
     }
 
     /**
@@ -194,8 +199,12 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
      * @throws IllegalArgumentException if p already has a right child
      */
     public Position<E> addRight(Position<E> p, E e) throws IllegalArgumentException {
-        // TODO
-        return null;
+        Node<E> n = validate(p);
+        if (n.getRight() != null) throw new IllegalArgumentException("p already has a right child");
+        Node<E> child = createNode(e, n, null, null);
+        n.setRight(child);
+        size++;
+        return child;
     }
 
     /**
@@ -208,8 +217,10 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
      * @throws IllegalArgumentException if p is not a valid Position for this tree.
      */
     public E set(Position<E> p, E e) throws IllegalArgumentException {
-        // TODO
-        return null;
+        Node<E> n = validate(p);
+        E old = n.getElement();
+        n.setElement(e);
+        return old;
     }
 
     /**
@@ -223,7 +234,22 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
      * @throws IllegalArgumentException if p is not a leaf
      */
     public void attach(Position<E> p, LinkedBinaryTree<E> t1, LinkedBinaryTree<E> t2) throws IllegalArgumentException {
-        // TODO
+        Node<E> n = validate(p);
+        if (isInternal(p)) throw new IllegalArgumentException("p must be a leaf");
+        if (!t1.isEmpty()) {
+            t1.root.setParent(n);
+            n.setLeft(t1.root);
+            size += t1.size;
+            t1.root = null;
+            t1.size = 0;
+        }
+        if (!t2.isEmpty()) {
+            t2.root.setParent(n);
+            n.setRight(t2.root);
+            size += t2.size;
+            t2.root = null;
+            t2.size = 0;
+        }
     }
 
     /**
@@ -235,8 +261,21 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
      * @throws IllegalArgumentException if p has two children.
      */
     public E remove(Position<E> p) throws IllegalArgumentException {
-        // TODO
-        return null;
+        Node<E> n = validate(p);
+        if (numChildren(p) == 2) throw new IllegalArgumentException("p has two children");
+        Node<E> child = (n.getLeft() != null ? n.getLeft() : n.getRight());
+        if (n == root) {
+            root = child;
+            if (child != null) child.setParent(null);
+        } else {
+            Node<E> parent = n.getParent();
+            if (parent.getLeft() == n) parent.setLeft(child);
+            else parent.setRight(child);
+            if (child != null) child.setParent(parent);
+        }
+        size--;
+        n.setParent(n);   // defunct convention
+        return n.getElement();
     }
 
     public String toString() {
@@ -244,26 +283,90 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
     }
 
     public void createLevelOrder(ArrayList<E> l) {
-        // TODO
-    }
-
-    private Node<E> createLevelOrderHelper(java.util.ArrayList<E> l, Node<E> p, int i) {
-        // TODO
-        return null;
+        E[] arr = (E[]) l.toArray();
+        createLevelOrder(arr);
     }
 
     public void createLevelOrder(E[] arr) {
-        root = createLevelOrderHelper(arr, root, 0);
+        root = createLevelOrderHelper(arr, null, 0);
+        size = 0;
+        for (E e : arr) if (e != null) size++;
     }
 
-    private Node<E> createLevelOrderHelper(E[] arr, Node<E> p, int i) {
-        // TODO
-        return null;
+    private Node<E> createLevelOrderHelper(E[] arr, Node<E> parent, int i) {
+        if (i >= arr.length || arr[i] == null) return null;
+        Node<E> n = createNode(arr[i], parent, null, null);
+        n.setLeft(createLevelOrderHelper(arr, n, 2 * i + 1));
+        n.setRight(createLevelOrderHelper(arr, n, 2 * i + 2));
+        return n;
     }
 
     public String toBinaryTreeString() {
         BinaryTreePrinter<E> btp = new BinaryTreePrinter<>(this);
         return btp.print();
+    }
+
+    /**
+     * Returns the number of recursive calls made during the last height() computation.
+     * (For Q1(h) - use this to verify expected call count.)
+     */
+    public int getHeightRecursiveCallCount() {
+        if (isEmpty()) return 0;
+        int[] callCount = new int[1];
+        height_recursive(root(), callCount);
+        return callCount[0];
+    }
+
+    /**
+     * Diameter of the binary tree: length (in edges) of the longest path between any two nodes.
+     * (Q1(i)) The path may or may not pass through the root.
+     */
+    public int diameter() {
+        if (isEmpty()) return 0;
+        int[] result = diameterAndHeight(root());
+        return result[0];
+    }
+
+    /** Returns [diameter, height] for the subtree rooted at p. Height of null = -1. */
+    private int[] diameterAndHeight(Position<E> p) {
+        if (p == null) return new int[]{0, -1};
+        Node<E> n = (Node<E>) p;
+        int[] left = diameterAndHeight(n.getLeft());
+        int[] right = diameterAndHeight(n.getRight());
+        int height = 1 + Math.max(left[1], right[1]);
+        int throughP = (left[1] + 1) + (right[1] + 1);  // edges from left leaf through p to right leaf
+        int diameter = Math.max(throughP, Math.max(left[0], right[0]));
+        return new int[]{diameter, height};
+    }
+
+    /**
+     * Counts the number of external (leaf) nodes in the tree. Uses only Binary Tree ADT.
+     * (Q2) Recursive: external node contributes 1; internal node sums counts from left and right subtrees.
+     */
+    public int countExternalNodes() {
+        if (isEmpty()) return 0;
+        return countExternalNodes(root());
+    }
+
+    private int countExternalNodes(Position<E> p) {
+        if (p == null) return 0;
+        if (isExternal(p)) return 1;
+        return countExternalNodes(left(p)) + countExternalNodes(right(p));
+    }
+
+    /**
+     * Counts only the left external nodes (leaves that are left children). Uses only Binary Tree ADT.
+     * (Q3)
+     */
+    public int countLeftExternalNodes() {
+        if (isEmpty()) return 0;
+        return countLeftExternalNodes(root());
+    }
+
+    private int countLeftExternalNodes(Position<E> p) {
+        if (p == null) return 0;
+        if (isExternal(p) && !isRoot(p) && left(parent(p)) == p) return 1;
+        return countLeftExternalNodes(left(p)) + countLeftExternalNodes(right(p));
     }
 
     /**

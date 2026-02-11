@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import project20280.interfaces.Position;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LinkedBinaryTreeTest {
 
@@ -13,7 +14,7 @@ class LinkedBinaryTreeTest {
         Position<Integer> root = bt.addRoot(1);
         assertEquals(1, bt.size());
 
-        Position<Integer> l = bt.addLeft(root, 2);
+        bt.addLeft(root, 2);
 
         bt.remove(bt.root());
         assertEquals(1, bt.size());
@@ -110,4 +111,63 @@ class LinkedBinaryTreeTest {
         assertEquals(3, bt.height());
     }
 
+    @Test
+    void testHeightRecursiveCallCount() {
+        LinkedBinaryTree<Integer> bt = new LinkedBinaryTree<>();
+        Integer[] arr = new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+        bt.createLevelOrder(arr);
+        int calls = bt.getHeightRecursiveCallCount();
+        assertEquals(3, bt.height());
+        // Each node visited once: 12 nodes => 12 recursive calls
+        assertEquals(12, calls);
+    }
+
+    @Test
+    void testTreeFromPDF() {
+        // Q1(h) and Q1(i): tree from the exercise sheet level-order array
+        Integer[] arr = new Integer[]{
+                1,
+                2, 3,
+                4, 5, 6, 7,
+                8, 9, 10, 11, 12, 13, 14, 15,
+                16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+                null, null, null, 35
+        };
+        LinkedBinaryTree<Integer> bt = new LinkedBinaryTree<>();
+        bt.createLevelOrder(arr);
+        assertEquals(32, bt.size());
+        int h = bt.height();
+        int calls = bt.getHeightRecursiveCallCount();
+        int d = bt.diameter();
+        assertEquals(5, h);  // height of this tree
+        assertEquals(32, calls);  // one call per node
+        assertTrue(d >= 1);
+    }
+
+    @Test
+    void testDiameter() {
+        LinkedBinaryTree<Integer> bt = new LinkedBinaryTree<>();
+        Integer[] arr = new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+        bt.createLevelOrder(arr);
+        int d = bt.diameter();
+        assertEquals(6, d);  // longest path in this complete tree
+    }
+
+    @Test
+    void testCountExternalNodes() {
+        LinkedBinaryTree<Integer> bt = new LinkedBinaryTree<>();
+        Integer[] arr = new Integer[]{1, 2, 3, 4, 5, 6, 7};
+        bt.createLevelOrder(arr);
+        assertEquals(4, bt.countExternalNodes());  // leaves: 4,5,6,7
+    }
+
+    @Test
+    void testCountLeftExternalNodes() {
+        LinkedBinaryTree<Integer> bt = new LinkedBinaryTree<>();
+        bt.addRoot(1);
+        bt.addLeft(bt.root(), 2);
+        bt.addRight(bt.root(), 3);
+        bt.addLeft(bt.left(bt.root()), 4);
+        assertEquals(1, bt.countLeftExternalNodes());  // only node 4 is left external
+    }
 }
