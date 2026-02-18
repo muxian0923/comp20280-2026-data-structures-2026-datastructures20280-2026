@@ -3,6 +3,7 @@ package project20280.tree;
 import project20280.interfaces.Position;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Concrete implementation of a binary tree using a node-based, linked
@@ -33,6 +34,7 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
     public static LinkedBinaryTree<Integer> makeRandom(int n) {
         LinkedBinaryTree<Integer> bt = new LinkedBinaryTree<>();
         bt.root = randomTree(null, 1, n);
+        bt.size = n;
         return bt;
     }
 
@@ -53,11 +55,23 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
 
     // accessor methods (not already implemented in AbstractBinaryTree)
 
-    public static void main(String [] args) {
+    public static void main(String[] args) {
+        // Q2: level-order construction
         LinkedBinaryTree<String> bt = new LinkedBinaryTree<>();
         String[] arr = { "A", "B", "C", "D", "E", null, "F", null, null, "G", "H", null, null, null, null };
         bt.createLevelOrder(arr);
         System.out.println(bt.toBinaryTreeString());
+
+        // Q3: construct from inorder + preorder
+        Integer[] inorder = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30};
+        Integer[] preorder = {18, 2, 1, 14, 13, 12, 4, 3, 9, 6, 5, 8, 7, 10, 11, 15, 16, 17, 28, 23, 19, 22, 20, 21, 24, 27, 26, 25, 29, 30};
+        LinkedBinaryTree<Integer> bt2 = new LinkedBinaryTree<>();
+        bt2.construct(inorder, preorder);
+        System.out.println(bt2.toBinaryTreeString());
+        System.out.println("Width (nodes on longest path): " + bt2.width());
+
+        // Q6: 需要做高度实验时取消下面注释，再运行本 main；会输出 n,avgHeight 到控制台，可复制到 Excel 绘图
+        // runHeightExperiment();
     }
 
 
@@ -299,6 +313,89 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
         n.setLeft(createLevelOrderHelper(arr, n, 2 * i + 1));
         n.setRight(createLevelOrderHelper(arr, n, 2 * i + 2));
         return n;
+    }
+
+    /**
+     * Q3: Builds a binary tree from inorder and preorder traversals.
+     * Preorder gives the root; inorder splits left/right subtrees.
+     */
+    public void construct(E[] inorder, E[] preorder) {
+        if (inorder == null || preorder == null || inorder.length != preorder.length || inorder.length == 0) {
+            root = null;
+            size = 0;
+            return;
+        }
+        root = buildFromInPre(inorder, preorder, 0, inorder.length - 1, 0, preorder.length - 1);
+        size = inorder.length;
+    }
+
+    private Node<E> buildFromInPre(E[] in, E[] pre, int inLo, int inHi, int preLo, int preHi) {
+        if (inLo > inHi) return null;
+        E rootVal = pre[preLo];
+        int inRoot = -1;
+        for (int i = inLo; i <= inHi; i++) {
+            if ((in[i] == null && rootVal == null) || (in[i] != null && in[i].equals(rootVal))) {
+                inRoot = i;
+                break;
+            }
+        }
+        if (inRoot < 0) throw new IllegalArgumentException("Root from preorder not found in inorder");
+        int leftSize = inRoot - inLo;
+        Node<E> n = createNode(rootVal, null, null, null);
+        n.setLeft(buildFromInPre(in, pre, inLo, inRoot - 1, preLo + 1, preLo + leftSize));
+        n.setRight(buildFromInPre(in, pre, inRoot + 1, inHi, preLo + leftSize + 1, preHi));
+        if (n.getLeft() != null) n.getLeft().setParent(n);
+        if (n.getRight() != null) n.getRight().setParent(n);
+        return n;
+    }
+
+    /**
+     * Q4: Returns all root-to-leaf paths (each path is a list of elements from root to leaf).
+     */
+    public List<List<E>> rootToLeafPaths() {
+        List<List<E>> result = new ArrayList<>();
+        if (isEmpty()) return result;
+        List<E> path = new ArrayList<>();
+        rootToLeafPathsHelper(root(), path, result);
+        return result;
+    }
+
+    private void rootToLeafPathsHelper(Position<E> p, List<E> path, List<List<E>> result) {
+        path.add(p.getElement());
+        if (isExternal(p))
+            result.add(new ArrayList<>(path));
+        else {
+            if (left(p) != null) rootToLeafPathsHelper(left(p), path, result);
+            if (right(p) != null) rootToLeafPathsHelper(right(p), path, result);
+        }
+        path.remove(path.size() - 1);
+    }
+
+    /**
+     * Q5: Width = number of nodes on the longest path between any two nodes (may not pass through root).
+     * Equals diameter (in edges) + 1.
+     */
+    public int width() {
+        if (isEmpty()) return 0;
+        return diameter() + 1;
+    }
+
+    /**
+     * Q6: Runs the height experiment: for each n in [50, 5000] step 50, generates 100 random
+     * binary trees of size n and prints (n, average height) as CSV for plotting.
+     * Call from main or a test to produce data for Excel/Sheets; then fit trendline to check O(log n).
+     */
+    public static void runHeightExperiment() {
+        System.out.println("n,avgHeight");
+        for (int n = 50; n <= 5000; n += 50) {
+            long sumHeight = 0;
+            for (int run = 0; run < 100; run++) {
+                LinkedBinaryTree<Integer> bt = makeRandom(n);
+                sumHeight += bt.height();
+            }
+            double avg = sumHeight / 100.0;
+            System.out.println(n + "," + avg);
+        }
     }
 
     public String toBinaryTreeString() {

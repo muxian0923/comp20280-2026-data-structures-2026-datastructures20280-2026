@@ -3,6 +3,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "LinkedBinaryTree",
+      "request": "launch",
+      "mainClass": "project20280.tree.LinkedBinaryTree",
+      "projectName": "data-structures"
+    },
+    {
+      "type": "java",
       "name": "LinkedQueue",
       "request": "launch",
       "mainClass": "project20280.stacksqueues.LinkedQueue",
